@@ -1,6 +1,6 @@
 ---
 - name: 'Add nameserver in resolv.conf file on localhost'
-  hosts: localhost
+  hosts: local
   become: yes
   vars:
    nameserver_ip: 8.8.4.4
@@ -9,4 +9,14 @@
       lineinfile:
         path: /etc/resolv.conf
         # nameserver_ip is defined in inventory file
-        line: 'nameserver {{  nameserver_ip  }}'
+        line: 'nameserver {{ nameserver_ip }}'
+- hosts: local
+  name: 'Use local variables'
+  vars:
+    car_model: 'Alto 800'
+    country_name: India
+    title: 'Systems Engineer'
+  tasks:
+    - command: 'echo "My car is {{ car_model }}"'
+    - command: 'echo "I live in the {{ country_name }}"'
+    - command: 'echo "I work as a {{ title }}"'
