@@ -1,0 +1,12 @@
+---
+- name: 'Add nameserver in resolv.conf file on localhost'
+  hosts: localhost
+  become: yes
+  vars:
+   nameserver_ip: 8.8.4.4
+  tasks:
+    - name: 'Add nameserver in resolv.conf file'
+      lineinfile:
+        path: /etc/resolv.conf
+        # nameserver_ip is defined in inventory file
+        line: 'nameserver {{  nameserver_ip  }}'

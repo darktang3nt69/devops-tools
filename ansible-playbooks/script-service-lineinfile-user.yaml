@@ -1,0 +1,30 @@
+---
+- name: 'hosts'
+  hosts: all
+  become: yes
+  tasks:
+    - name: 'Execute a script'
+      # script module is to execute a script.
+      script: '/tmp/install_script.sh'
+    - name: 'Start httpd service'
+      # service module is used for interacting with services.
+      service:
+        # name of the service
+        name: 'httpd'
+        # Started means it makes sure that the service is up and running
+        state: 'started'
+    - name: 'add line to a file'
+      # This module is good at text line manipulations
+      lineinfile:
+         # path to the text file
+         path: /var/www/html/index.html
+         # line to be added
+         line: 'Welcome to ansible-beginning course'
+         # Creates the file if not present
+         create: true
+    - name: 'Add a new user'
+      # user module is used to add/delete an user
+      user:
+       name: 'web_user'
+       uid: '1040'
+       group: 'developers'
