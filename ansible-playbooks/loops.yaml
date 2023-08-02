@@ -1,0 +1,27 @@
+---
+-  name: 'Print list of fruits'
+   hosts: localhost
+   vars:
+     # fruits loop is defined here.
+     fruits:
+       - Apple
+       - Banana
+       - Grapes
+       - Orange
+   tasks:
+     - command: 'echo "{{ item }}"'
+       with_items: '{{ fruits }}'
+
+- name: 'Install required packages'
+  hosts: localhost
+  become: yes
+  vars:
+    packages:
+      - httpd
+      - make
+      - vim
+  tasks:
+    - yum:
+        # With yum, we can directly specify a loop of package name. Thus, no need for loop.
+        name: '{{ packages }}'
+        state: present

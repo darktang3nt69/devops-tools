@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+      # Replace module is used to find and replace text.
+    - replace:
+        # Path to the file.
+        path: /opt/music/blog.txt
+        # regexp to find the text to replace.
+        regexp: 'Hello World'
+        # Replace with below text.
+        replace: 'Hello'
+
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Copy file with owner and permissions on node01
+      copy:
+        src: /usr/src/condition/blog.txt
+        dest: /opt/condition/blog.txt
+        owner: bob
+        group: bob
+        mode: "0640"
+      # This is needed because ansible runs all the tasks on all hosts.
+      when: inventory_hostname == "node01"
+
+    - name: Copy file with owner and permissions on node02
+      copy:
+        src: /usr/src/condition/story.txt
+        dest: /opt/condition/story.txt
+        owner: sam
+        group: sam
+        mode: "0400"
+      when: inventory_hostname == "node02"
+---
+- hosts: node01
+  become: true
+  tasks:
+  - lineinfile:
+      path: /var/www/html/index.html
+      line: 'Welcome to KodeKloud Labs!'
+      state: present
+      insertbefore: BOF

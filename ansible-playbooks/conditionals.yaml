@@ -1,0 +1,42 @@
+---
+- name: Install package
+  hosts: local
+  tasks:
+    - name: Install
+      package:
+        name: vim
+        state: present
+      # checks the distro using one of the built-in vars. So, if the distro is NOT RedHat, then the package is installed.
+      when: ansible_os_family != "RedHat"
+
+-  name: 'Execute a script on all web server nodes'
+   hosts: local
+   become: yes
+   tasks:
+     -  service: 'name=nginx state=started'
+        # Only run on node02
+        when: 'ansible_host=="node02"'
+
+- name: 'Am I an Adult or a Child?'
+  hosts: localhost
+  vars:
+    age: 25
+  tasks:
+    - name: I am a Child
+      command: 'echo "I am a Child"'
+      # Basic relation operator
+      when: 'age < 18'
+    - name: I am an Adult
+      command: 'echo "I am an Adult"'
+      when: 'age >= 18'
+- name: 'Add name server entry if not already entered'
+  hosts: localhost
+  become: yes
+  tasks:
+    - shell: 'cat /etc/resolv.conf'
+      # Shell module executes the command in shell, hence we have access to env vars and >> operator to redirect our output to 'command_output'.
+      # Stores the above output in 'command_output'
+      register: command_output
+    - shell: 'echo "nameserver 10.0.250.10" >> /etc/resolv.conf'
+      # DO NOT ADD THE FILE IF THE IP IS ALREADY AVAILABLE.	
+      when: 'command_output.stdout.find("10.0.250.10") == -1'
