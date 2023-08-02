@@ -1,2 +1,2 @@
 push_to_git.sh
-ansible-playbooks/Project-01-webapp/inventory
+/ansible-playbooks/Project-01-webapp/inventory
