@@ -1,0 +1,28 @@
+- hosts: all
+  become: yes
+  name: Deploy and configure webapp
+  tasks:
+    - name: Install packages -> httpd php php-mysqlnd git
+      vars:
+       packages:
+         - httpd
+         - php
+         - php-mysqlnd
+         - git
+      package:
+        name: '{{ packages }}'
+        state: present
+    - name: Change DirectoryIndex index.html to DirectoryIndex index.php to make the php page the default page
+      replace:
+         path: /etc/httpd/conf/httpd.conf
+         regexp: 'index.html'
+         replace: 'index.php'
+    - name: start and enable httpd
+      service:
+        name: httpd
+        state: started
+    - name: Enable httpd
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes

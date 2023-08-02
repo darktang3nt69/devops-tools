@@ -1,0 +1,12 @@
+- hosts: all
+  become: yes
+  name: Allow port 3306/tcp for maria-db
+  tasks:
+    - name: Allow port 3306/tcp
+      firewalld:
+        port: '3306/tcp'
+        permanent: true
+        zone: public
+        state: enabled
+    - name: Reload firewallD
+      command: firewall-cmd --reload

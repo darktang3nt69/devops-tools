@@ -1,0 +1,15 @@
+- hosts: all
+  become: yes
+  name: git clone and update index.php with correct db uri
+  vars:
+    DB_URL: localhost
+  tasks:
+    - name: clone repo
+      git:
+       repo: https://github.com/kodekloudhub/learning-app-ecommerce.git
+       dest: /var/www/html/
+    - name: Update index.php with correct DB url
+      replace:
+        path: /var/www/html/index.php
+        regexp: 172.20.1.101
+        replace: '{{ DB_URL }}'

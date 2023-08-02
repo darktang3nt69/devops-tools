@@ -1,0 +1,27 @@
+- hosts: all
+  become: yes
+  name: Configure DB
+  tasks:
+   - name: Install pymysql python package
+     pip:
+       name: pymysql
+       state: present
+   - name: Create new database with name 'ecomdb'
+     mysql_db:
+      name:
+       - ecomdb
+      state: present
+      login_unix_socket: /var/lib/mysql/mysql.sock
+   - name: Create database user with name 'ecomuser' and password 'ecompassword' with all database privileges
+     mysql_user:
+      login_unix_socket: /var/lib/mysql/mysql.sock
+      name: ecomuser
+      password: ecompassword
+      priv: 'ecomdb.*:ALL'
+      state: present
+   - name: Copy db-load-script.sql
+     copy:
+       src: db-load-script.sql
+       dest: ~/db-load-script.sql
+   - name: run the script
+     shell: mysql < ~/db-load-script.sql

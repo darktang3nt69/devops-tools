@@ -1,0 +1,14 @@
+- hosts: all
+  become: yes
+  name: Install, start and enable mysql
+  tasks:
+    - name: install mysql
+      package:
+         name: mariadb-server
+         state: present
+    - name: start the service
+      service:
+       name: mariadb
+       state: started
+    - name: enable the service
+      command: systemctl enable mariadb

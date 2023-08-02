@@ -1,0 +1,121 @@
+- hosts: all
+  become: yes
+  name: Deploy LAMP stack webapp
+  vars:
+    DB_URL: localhost
+  tasks:
+    - name: Install FirewallD
+      package:
+        name: firewalld
+        state: present
+
+    - name: start FirewallD service
+      service:
+        name: firewalld
+        state: started
+
+    - name: Enable Firewalld
+      systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+    - name: install mysql
+      package:
+         name: mariadb-server
+         state: present
+
+    - name: start the service
+      service:
+       name: mariadb
+       state: started
+
+    - name: enable the service
+      systemd:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Allow port 3306/tcp
+      firewalld:
+        port: '3306/tcp'
+        permanent: true
+        zone: public
+        state: enabled
+
+    - name: Reload firewallD
+      command: firewall-cmd --reload
+
+    - name: Install pymysql python package
+      pip:
+       name: pymysql
+       state: present
+
+    - name: Create new database with name 'ecomdb'
+      ignore_errors: true
+      mysql_db:
+       name:
+        - ecomdb
+       state: present
+       login_unix_socket: /var/lib/mysql/mysql.sock
+
+    - name: Create database user with name 'ecomuser' and password 'ecompassword' with all database privileges
+      ignore_errors: true
+      mysql_user:
+       login_unix_socket: /var/lib/mysql/mysql.sock
+       name: ecomuser
+       password: ecompassword
+       priv: 'ecomdb.*:ALL'
+       state: present
+
+    - name: Copy db-load-script.sql
+      copy:
+       src: db-load-script.sql
+       dest: ~/db-load-script.sql
+
+    - name: run the script
+      ignore_errors: true
+      shell: mysql < ~/db-load-script.sql
+
+    - name: Install packages -> httpd php php-mysqlnd git
+      vars:
+       packages:
+         - httpd
+         - php
+         - php-mysqlnd
+         - git
+      package:
+        name: '{{ packages }}'
+        state: present
+
+    - name: Change DirectoryIndex index.html to DirectoryIndex index.php to make the php page the default page
+      replace:
+         path: /etc/httpd/conf/httpd.conf
+         regexp: 'index.html'
+         replace: 'index.php'
+
+    - name: start and enable httpd
+      service:
+        name: httpd
+        state: started
+
+    - name: Enable httpd
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: clone repo
+      ignore_errors: true
+      git:
+       repo: https://github.com/kodekloudhub/learning-app-ecommerce.git
+       dest: /var/www/html/
+
+    - name: Update index.php with correct DB url
+      ignore_errors: true
+      vars:
+       DB_URL: localhost
+      replace:
+        path: /var/www/html/index.php
+        regexp: 172.20.1.101
+        replace: '{{ DB_URL }}'

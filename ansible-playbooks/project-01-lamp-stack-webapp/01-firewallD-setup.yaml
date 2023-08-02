@@ -1,0 +1,14 @@
+- hosts: all
+  become: yes
+  name: Install, start the service and enable FirewallD
+  tasks:
+    - name: Install FirewallD
+      package:
+        name: firewalld
+        state: present
+    - name: start FirewallD service
+      service:
+        name: firewalld
+        state: started
+    - name: Enable Firewalld
+      command: systemctl enable firewalld
