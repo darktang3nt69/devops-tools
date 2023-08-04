@@ -1,0 +1,93 @@
+- hosts: ansible-host-2
+  become: yes
+  name: Deploy LAMP stack webapp
+  vars:
+    DB_URL: localhost
+    DB_USER: ecomuser
+    DB_PASSWORD: ecompassword
+    DB_NAME: ecomdb
+    DB_URL_REPLACE: 172.20.1.101
+    PORT: '3306/tcp'
+    deps:
+     - firewalld
+     - mariadb-server
+     - httpd
+     - php
+     - php-mysqlnd
+     - git
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.package:
+        name: '{{ deps }}'
+        state: present
+
+    - name: start dependent service
+      service:
+        name: '{{ item }}'
+        state: started
+        enabled: true
+      loop: 
+        - firewalld
+        - mariadb-server
+        - httpd
+
+    - name: Allow port 3306/tcp
+      firewalld:
+        port: '{{ PORT }}'
+        permanent: true
+        zone: public
+        state: enabled
+
+    - name: Reload firewallD
+      command: firewall-cmd --reload
+
+    - name: Install pymysql python package
+      pip:
+       name: pymysql
+       state: present
+
+    - name: Create new database with name 'ecomdb'
+      ignore_errors: true
+      mysql_db:
+       name: '{{ DB_NAME }}'
+       state: present
+       login_unix_socket: /var/lib/mysql/mysql.sock
+
+    - name: Create database user with name 'ecomuser' and password 'ecompassword' with all database privileges
+      ignore_errors: true
+      mysql_user:
+       login_unix_socket: /var/lib/mysql/mysql.sock
+       name: '{{ DB_USER }}'
+       password: '{{ DB_PASSWORD }}'
+       priv: '{{ DB_NAME }}.*:ALL'
+       state: present
+
+    - name: Copy db-load-script.sql
+      copy:
+       src: db-load-script.sql
+       dest: ~/db-load-script.sql
+
+    - name: run the script
+      ignore_errors: true
+      shell: mysql < ~/db-load-script.sql
+
+    - name: Change DirectoryIndex index.html to DirectoryIndex index.php to make the php page the default page
+      replace:
+         path: /etc/httpd/conf/httpd.conf
+         regexp: 'index.html'
+         replace: 'index.php'
+
+    - name: clone repo
+      ignore_errors: true
+      git:
+       repo: https://github.com/kodekloudhub/learning-app-ecommerce.git
+       dest: /var/www/html/
+
+    - name: Update index.php with correct DB url
+      ignore_errors: true
+      vars:
+       DB_URL: localhost
+      replace:
+        path: /var/www/html/index.php
+        regexp: '{{ DB_URL_REPLACE }}'
+        replace: '{{ DB_URL }}'
