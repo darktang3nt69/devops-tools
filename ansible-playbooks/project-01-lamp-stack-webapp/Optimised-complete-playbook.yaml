@@ -1,4 +1,4 @@
-- hosts: ansible-host-2
+- hosts: all
   become: yes
   name: Deploy LAMP stack webapp
   vars:
@@ -8,18 +8,19 @@
     DB_NAME: ecomdb
     DB_URL_REPLACE: 172.20.1.101
     PORT: '3306/tcp'
-    deps:
-     - firewalld
-     - mariadb-server
-     - httpd
-     - php
-     - php-mysqlnd
-     - git
   tasks:
     - name: Install dependencies
       ansible.builtin.package:
-        name: '{{ deps }}'
+        name: '{{ item }}'
         state: present
+      loop:
+        - firewalld
+        - mariadb-server
+        - httpd
+        - php
+        - php-mysqlnd
+        - git
+        - python3-pip
 
     - name: start dependent service
       service:
@@ -28,7 +29,7 @@
         enabled: true
       loop: 
         - firewalld
-        - mariadb-server
+        - mariadb
         - httpd
 
     - name: Allow port 3306/tcp
