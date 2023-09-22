@@ -1,39 +1,39 @@
 variable "name" {
-     type = string
-     default = "Mark"
-  
+  type    = string
+  default = "Mark"
+
 }
 variable "number" {
-     type = bool
-     default = true
-  
+  type    = bool
+  default = true
+
 }
 variable "distance" {
-     type = number
-     default = 5
-  
+  type    = number
+  default = 5
+
 }
 variable "jedi" {
-     type = map
-     default = {
-     filename = "./first-jedi"
-     content = "phanius"
-     }
-  
+  type = map(any)
+  default = {
+    filename = "./first-jedi"
+    content  = "phanius"
+  }
+
 }
 
 variable "gender" {
-     type = list(string)
-     default = ["Male", "Female"]
+  type    = list(string)
+  default = ["Male", "Female"]
 }
 variable "hard_drive" {
-     type = map
-     default = {
-          slow = "HHD"
-          fast = "SSD"
-     }
+  type = map(any)
+  default = {
+    slow = "HHD"
+    fast = "SSD"
+  }
 }
 variable "users" {
-     type = set(string)
-     default = ["tom", "jerry", "pluto", "daffy", "donald", "chip", "dale"]
+  type    = set(string)
+  default = ["tom", "jerry", "pluto", "daffy", "donald", "chip", "dale"]
 }

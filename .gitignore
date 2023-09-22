@@ -2,3 +2,4 @@ push_to_git.sh
 ansible-playbooks/Project-01-webapp/inventory
 ansible-playbooks/project-01-lamp-stack-webapp/inventory
 Dockerfile
+terraform/*/*.hcl

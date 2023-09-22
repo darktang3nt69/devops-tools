@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "2.50000000000000000000"
+read monthly
+
+echo " Enter tax rate in percentage"
+read tax
+
+

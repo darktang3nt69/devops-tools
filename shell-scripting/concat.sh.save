@@ -1,0 +1,8 @@
+#!/bin/bash
+
+str1="Mr."
+str2="Robot"
+
+echo "First String: $str1, Second String: $str2"
+
+echo "Concatenatw
